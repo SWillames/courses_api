@@ -1,9 +1,11 @@
 package sw_software.courses_api.modules.course.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sw_software.courses_api.modules.course.dto.CourseRequestDto;
 import sw_software.courses_api.modules.course.entity.CourseEntity;
 import sw_software.courses_api.modules.course.service.CourseServiceImpl;
 
@@ -23,7 +25,8 @@ public class CourseController {
   }
 
   @PostMapping
-  public ResponseEntity<CourseEntity> create(@RequestBody CourseEntity course) {
+  public ResponseEntity<CourseEntity> create(@RequestBody @Valid CourseRequestDto courseDto) {
+    CourseEntity course = new CourseEntity(courseDto);
     return courseService.createCourse(course);
   }
 
@@ -33,7 +36,8 @@ public class CourseController {
   }
 
   @PatchMapping("/{id}")
-  public ResponseEntity<CourseEntity> update(@PathVariable Long id, @RequestBody CourseEntity course) {
+  public ResponseEntity<CourseEntity> update(@PathVariable Long id, @RequestBody @Valid CourseRequestDto courseDto) {
+    CourseEntity course = new CourseEntity(courseDto);
     return courseService.updateCourse(id, course);
   }
 
