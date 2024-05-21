@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import sw_software.courses_api.modules.course.exceptions.CourseAlreadyRegisteredException;
+import sw_software.courses_api.modules.course.exceptions.CourseNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,5 +31,15 @@ public class ExceptionHandlerController {
       errors.add(errorDTO);
     });
     return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(CourseAlreadyRegisteredException.class)
+  public ResponseEntity<String> handleCourseAlreadyRegisteredException(CourseAlreadyRegisteredException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+  }
+
+  @ExceptionHandler(CourseNotFoundException.class)
+  public ResponseEntity<String> handleCourseNotFoundException(CourseNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
   }
 }
