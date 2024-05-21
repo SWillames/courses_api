@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sw_software.courses_api.modules.course.dto.CourseRequestDto;
 import sw_software.courses_api.modules.course.entity.CourseEntity;
+import sw_software.courses_api.modules.course.exceptions.CourseAlreadyRegisteredException;
 import sw_software.courses_api.modules.course.service.CourseServiceImpl;
 
 import java.util.List;
@@ -25,18 +26,18 @@ public class CourseController {
   }
 
   @PostMapping
-  public ResponseEntity<CourseEntity> create(@RequestBody @Valid CourseRequestDto courseDto) {
+  public CourseEntity create(@RequestBody @Valid CourseRequestDto courseDto) throws CourseAlreadyRegisteredException {
     CourseEntity course = new CourseEntity(courseDto);
     return courseService.createCourse(course);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Optional<CourseEntity>> get(@PathVariable Long id) {
+  public CourseEntity get(@PathVariable Long id) {
     return courseService.course(id);
   }
 
   @PatchMapping("/{id}")
-  public ResponseEntity<CourseEntity> update(@PathVariable Long id, @RequestBody @Valid CourseRequestDto courseDto) {
+  public ResponseEntity<CourseEntity> update(@PathVariable Long id, @RequestBody @Valid CourseRequestDto courseDto) throws CourseAlreadyRegisteredException {
     CourseEntity course = new CourseEntity(courseDto);
     return courseService.updateCourse(id, course);
   }
