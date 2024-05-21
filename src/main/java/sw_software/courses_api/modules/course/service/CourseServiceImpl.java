@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import sw_software.courses_api.modules.course.entity.CourseEntity;
+import sw_software.courses_api.modules.course.exceptions.CourseAlreadyRegisteredException;
+import sw_software.courses_api.modules.course.exceptions.CourseNotFoundException;
 import sw_software.courses_api.modules.course.repository.CourseRepository;
 
 import java.util.List;
@@ -18,9 +20,10 @@ public class CourseServiceImpl implements CourseService {
   private final CourseRepository courseRepository;
 
   @Override
-  public ResponseEntity<CourseEntity> createCourse(CourseEntity course) {
+  public CourseEntity createCourse(CourseEntity course) throws CourseAlreadyRegisteredException {
+    verifyIfIsAlreadyRegistered(course.getName());
     var result = courseRepository.save(course);
-    return ResponseEntity.ok(result);
+    return result;
   }
 
   @Override
@@ -30,27 +33,36 @@ public class CourseServiceImpl implements CourseService {
   }
 
   @Override
-  public ResponseEntity<Optional<CourseEntity>> course(Long id) {
-    var result = courseRepository.findById(id);
-    return ResponseEntity.ok(result);
+  public CourseEntity course(Long id) throws CourseNotFoundException {
+    CourseEntity foundCourse = verifyIfExists(id);
+    return foundCourse;
   }
 
   @Override
-  public ResponseEntity<CourseEntity> updateCourse(Long id, CourseEntity course) {
-    Optional<CourseEntity> courseEntity = courseRepository.findById(id);
-    if (courseEntity.isPresent()) {
-      CourseEntity updatedCourse = courseEntity.get();
-      updatedCourse.setName(course.getName());
-      updatedCourse.setCategory(course.getCategory());
-      updatedCourse.setActive(course.getActive());
-      return ResponseEntity.ok(courseRepository.save(updatedCourse));
-    } else {
-      return ResponseEntity.notFound().build();
-    }
+  public ResponseEntity<CourseEntity> updateCourse(Long id, CourseEntity course) throws CourseAlreadyRegisteredException {
+    CourseEntity courseEntity = verifyIfExists(id);
+    System.out.println(course.getName());
+    verifyIfIsAlreadyRegistered(course.getName());
+    courseEntity.setName(course.getName());
+    courseEntity.setCategory(course.getCategory());
+    courseEntity.setActive(course.getActive());
+    var result = courseRepository.save(courseEntity);
+    return ResponseEntity.ok(result);
   }
 
   @Override
   public void deleteCourse(Long id) {
     courseRepository.deleteById(id);
+  }
+
+  private void verifyIfIsAlreadyRegistered(String name) throws CourseAlreadyRegisteredException {
+    Optional<CourseEntity> optSavedCourse = courseRepository.findByName(name);
+    if (optSavedCourse.isPresent()) {
+      throw new CourseAlreadyRegisteredException(name);
+    }
+  }
+
+  private CourseEntity verifyIfExists(Long id) throws CourseNotFoundException{
+    return courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
   }
 }

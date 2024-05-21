@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import sw_software.courses_api.modules.course.dto.CourseRequestDto;
 import sw_software.courses_api.modules.course.enums.Active;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,7 @@ public class CourseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String name;
   @Column(nullable = false)
   private String category;
@@ -33,4 +34,10 @@ public class CourseEntity {
   private LocalDateTime createdAt;
   @UpdateTimestamp
   private LocalDateTime updatedAt;
+
+  public CourseEntity(CourseRequestDto courseDto) {
+    this.name = courseDto.name();
+    this.category = courseDto.category();
+    this.active = courseDto.active();
+  }
 }
